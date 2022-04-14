@@ -107,7 +107,7 @@ Idea here is that as long as `$.iterator.continue` is true the iteration will ke
 
 Second function is the one actually doing the job. It looks as follows:
 
-```yavascript
+```javascript
   exports.handler = (event, context, callback) => {
     const element = event.collection[event.iterator.index];
     console.log({ msg: 'Processing element', element });
