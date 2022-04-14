@@ -107,7 +107,7 @@ Idea here is that as long as `$.iterator.continue` is true the iteration will ke
 
 Second function is the one actually doing the job. It looks as follows:
 
-```
+```yavascript
   exports.handler = (event, context, callback) => {
     const element = event.collection[event.iterator.index];
     console.log({ msg: 'Processing element', element });
@@ -124,7 +124,7 @@ iterator you're good to go.
 It's important to note, that if this function raises and exception, it's configured to keep on
 trying until it passes. This part of configuration (template.yml) is responsible for this behavior:
 
-```
+```yaml
       Retry:
         - ErrorEquals:
             - States.TaskFailed
@@ -164,7 +164,7 @@ I have a local file under path `/tmp/input.json` with a structure like:
 
 I can pass this file for iteration using:
 
-```
+```bash
 aws stepfunctions start-execution
   --state-machine-arn $STATE_MACHINE_ANR
   --input file:///tmp/input.json
