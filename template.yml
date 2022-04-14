@@ -1,0 +1,104 @@
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  InitIterator:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "index.handler"
+      InlineCode: |
+        exports.handler = (event, context, callback) => {
+        console.log(event);
+          callback(null, {
+            count: event.collection.length,
+            index: 0,
+            continue: event.collection.length > 0
+          });
+        };
+      Runtime: "nodejs14.x"
+      Timeout: 25
+
+
+  ProcessElement:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "index.handler"
+      InlineCode: |
+        exports.handler = (event, context, callback) => {
+          const element = event.collection[event.iterator.index];
+          console.log({ msg: 'Processing element', element });
+          callback(null, {
+            count: event.iterator.count,
+            index: event.iterator.index + 1,
+            continue: event.iterator.index < event.iterator.count - 1,
+          });
+        };
+      Runtime: "nodejs14.x"
+      Timeout: 25
+
+  MySampleStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Definition:
+        StartAt: GetElementCount
+        States:
+          GetElementCount:
+            Type: Task
+            Resource: !GetAtt InitIterator.Arn
+            ResultPath: "$.iterator"
+            Next: CheckIfFinished
+          CheckIfFinished:
+            Type: Choice
+            Choices:
+              -
+                Variable: "$.iterator.continue"
+                BooleanEquals: true
+                Next: ProcessElement
+            Default: Done
+          ProcessElement:
+            Type: Task
+            Resource: !GetAtt ProcessElement.Arn
+            ResultPath: "$.iterator"
+            Next: WaitABit
+            Retry:
+              - ErrorEquals:
+                  - States.TaskFailed
+                IntervalSeconds: 3
+                MaxAttempts: 65535
+                BackoffRate: 1.5
+          WaitABit:
+            Type: Wait
+            Seconds: 10
+            Next: CheckIfFinished
+          Done:
+            Type: Succeed
+
+      Tracing:
+        Enabled: true
+      Role: !GetAtt [ StatesExecutionRole, Arn ]
+
+  StatesExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "lambda:InvokeFunction"
+                Resource: "*"
+
+
+Outputs:
+  StateMachineArn:
+    Value: !Ref MySampleStateMachine
