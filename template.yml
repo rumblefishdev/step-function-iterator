@@ -4,16 +4,8 @@ Resources:
   InitIterator:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: "index.handler"
-      InlineCode: |
-        exports.handler = (event, context, callback) => {
-        console.log(event);
-          callback(null, {
-            count: event.collection.length,
-            index: 0,
-            continue: event.collection.length > 0
-          });
-        };
+      CodeUri: ./dist/index.js
+      Handler: "index.initIterator"
       Runtime: "nodejs14.x"
       Timeout: 25
 
@@ -21,17 +13,8 @@ Resources:
   ProcessElement:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: "index.handler"
-      InlineCode: |
-        exports.handler = (event, context, callback) => {
-          const element = event.collection[event.iterator.index];
-          console.log({ msg: 'Processing element', element });
-          callback(null, {
-            count: event.iterator.count,
-            index: event.iterator.index + 1,
-            continue: event.iterator.index < event.iterator.count - 1,
-          });
-        };
+      CodeUri: ./dist/index.js
+      Handler: index.processElement
       Runtime: "nodejs14.x"
       Timeout: 25
 
