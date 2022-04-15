@@ -10,7 +10,6 @@
           "GetElementCount": "InitIteratorEmptyState",
           "ProcessElement": "ProcessElementState"
         }
-
       }
     }
   },

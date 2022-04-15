@@ -62,15 +62,6 @@ describe('state machine definition', () => {
       executionArn: runResponse.executionArn,
     }).promise()
 
-    const inputDetails = (expectedIndex: number) => `
-Object {
-  "input": "{\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}],\\"iterator\\":{\\"continue\\":true,\\"count\\":3,\\"index\\":${expectedIndex}}}",
-  "inputDetails": Object {
-    "truncated": false,
-  },
-  "name": "ProcessElement",
-}
-`
     expect(executionHisory.events[2].type).toEqual('LambdaFunctionScheduled')
     expect(executionHisory.events[2].lambdaFunctionScheduledEventDetails).toMatchInlineSnapshot(`
 Object {
@@ -82,20 +73,23 @@ Object {
   "timeoutInSeconds": null,
 }
 `)
-    expect(executionHisory.events[8].type).toEqual('TaskStateEntered')
-    expect(executionHisory.events[8].stateEnteredEventDetails).toMatchInlineSnapshot(inputDetails(0))
-    expect(executionHisory.events[17].type).toEqual('TaskStateEntered')
-    expect(executionHisory.events[17].stateEnteredEventDetails).toMatchInlineSnapshot(inputDetails(1))
-    expect(executionHisory.events[26].type).toEqual('TaskStateEntered')
-    expect(executionHisory.events[26].stateEnteredEventDetails).toMatchInlineSnapshot(`
+
+    const inputDetails = (expectedIndex: number) => `
 Object {
-  "input": "{\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}],\\"iterator\\":{\\"continue\\":true,\\"count\\":3,\\"index\\":2}}",
+  "input": "{\\"iterator\\":{\\"continue\\":true,\\"count\\":3,\\"index\\":${expectedIndex}},\\"StateName\\":\\"ProcessElement\\",\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}]}",
   "inputDetails": Object {
     "truncated": false,
   },
-  "name": "ProcessElement",
+  "resource": "arn:aws:lambda:us-east-1:123456789012:function:some-function",
+  "timeoutInSeconds": null,
 }
-`)
+`
+    expect(executionHisory.events[9].type).toEqual('LambdaFunctionScheduled')
+    expect(executionHisory.events[9].lambdaFunctionScheduledEventDetails).toMatchInlineSnapshot(inputDetails(0))
+    expect(executionHisory.events[18].type).toEqual('LambdaFunctionScheduled')
+    expect(executionHisory.events[18].lambdaFunctionScheduledEventDetails).toMatchInlineSnapshot(inputDetails(1))
+    expect(executionHisory.events[27].type).toEqual('LambdaFunctionScheduled')
+    expect(executionHisory.events[27].lambdaFunctionScheduledEventDetails).toMatchInlineSnapshot(inputDetails(2))
   })
 
   it('empty collection', async () => {

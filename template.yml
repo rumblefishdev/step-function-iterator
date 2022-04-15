@@ -45,6 +45,11 @@ Resources:
             Type: Task
             Resource: !GetAtt ProcessElement.Arn
             ResultPath: "$.iterator"
+            Parameters:
+              "StateName.$": "$$.State.Name"
+              "collection.$": "$.collection"
+              "iterator.$": "$.iterator"
+
             Next: WaitABit
             Retry:
               - ErrorEquals:
