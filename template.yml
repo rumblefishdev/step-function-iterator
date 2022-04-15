@@ -27,6 +27,10 @@ Resources:
           GetElementCount:
             Type: Task
             Resource: !GetAtt InitIterator.Arn
+            Parameters:
+              "StateName.$": "$$.State.Name"
+              "collection.$": "$.collection"
+
             ResultPath: "$.iterator"
             Next: CheckIfFinished
           CheckIfFinished:

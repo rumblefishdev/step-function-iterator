@@ -1,0 +1,19 @@
+version: '3'
+services:
+  step-functions:
+    image: amazon/aws-stepfunctions-local
+    volumes:
+      - ./test/fixtures:/home/StepFunctionsLocal/fixtures:ro
+    environment:
+      SFN_MOCK_CONFIG: "/home/StepFunctionsLocal/fixtures/fixtures.json"
+      WAIT_TIME_SCALE: 0
+
+  test-runner:
+    image: node:16-buster
+    volumes:
+      - .:/app
+    links:
+      - step-functions
+    working_dir: /app
+    user: node
+    command: npm run test

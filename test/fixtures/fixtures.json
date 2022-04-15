@@ -1,0 +1,60 @@
+{
+  "StateMachines": {
+    "MyStateMachine": {
+      "TestCases": {
+        "HappyPath": {
+          "GetElementCount": "InitIteratorState",
+          "ProcessElement": "ProcessElementState"
+        },
+        "EmptyCollection": {
+          "GetElementCount": "InitIteratorEmptyState",
+          "ProcessElement": "ProcessElementState"
+        }
+
+      }
+    }
+  },
+  "MockedResponses": {
+    "InitIteratorState": {
+      "0": {
+        "Return": {
+          "continue": true,
+          "count": 3,
+          "index": 0
+        }
+      }
+    },
+    "InitIteratorEmptyState": {
+      "0": {
+        "Return": {
+          "continue": false,
+          "count": 0,
+          "index": 0
+        }
+      }
+    },
+    "ProcessElementState": {
+      "0": {
+        "Return": {
+          "continue": true,
+          "count": 3,
+          "index": 1
+        }
+      },
+      "1": {
+        "Return": {
+          "continue": true,
+          "count": 3,
+          "index": 2
+        }
+      },
+      "2": {
+        "Return": {
+          "continue": false,
+          "count": 3,
+          "index": 3
+        }
+      }
+    }
+  }
+}
