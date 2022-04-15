@@ -1,20 +1,11 @@
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  InitIterator:
+  StateFunctionHandler:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./dist/index.js
-      Handler: "index.initIterator"
-      Runtime: "nodejs14.x"
-      Timeout: 25
-
-
-  ProcessElement:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: ./dist/index.js
-      Handler: index.processElement
+      Handler: index.entrypoint
       Runtime: "nodejs14.x"
       Timeout: 25
 
@@ -26,9 +17,9 @@ Resources:
         States:
           GetElementCount:
             Type: Task
-            Resource: !GetAtt InitIterator.Arn
+            Resource: !GetAtt StateFunctionHandler.Arn
             Parameters:
-              "StateName.$": "$$.State.Name"
+              "stateName.$": "$$.State.Name"
               "collection.$": "$.collection"
 
             ResultPath: "$.iterator"
@@ -43,10 +34,10 @@ Resources:
             Default: Done
           ProcessElement:
             Type: Task
-            Resource: !GetAtt ProcessElement.Arn
+            Resource: !GetAtt StateFunctionHandler.Arn
             ResultPath: "$.iterator"
             Parameters:
-              "StateName.$": "$$.State.Name"
+              "stateName.$": "$$.State.Name"
               "collection.$": "$.collection"
               "iterator.$": "$.iterator"
 

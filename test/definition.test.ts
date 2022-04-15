@@ -65,7 +65,7 @@ describe('state machine definition', () => {
     expect(executionHisory.events[2].type).toEqual('LambdaFunctionScheduled')
     expect(executionHisory.events[2].lambdaFunctionScheduledEventDetails).toMatchInlineSnapshot(`
 Object {
-  "input": "{\\"StateName\\":\\"GetElementCount\\",\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}]}",
+  "input": "{\\"stateName\\":\\"GetElementCount\\",\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}]}",
   "inputDetails": Object {
     "truncated": false,
   },
@@ -76,7 +76,7 @@ Object {
 
     const inputDetails = (expectedIndex: number) => `
 Object {
-  "input": "{\\"iterator\\":{\\"continue\\":true,\\"count\\":3,\\"index\\":${expectedIndex}},\\"StateName\\":\\"ProcessElement\\",\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}]}",
+  "input": "{\\"iterator\\":{\\"continue\\":true,\\"count\\":3,\\"index\\":${expectedIndex}},\\"stateName\\":\\"ProcessElement\\",\\"collection\\":[{\\"index\\":0},{\\"index\\":1},{\\"index\\":2}]}",
   "inputDetails": Object {
     "truncated": false,
   },
