@@ -138,7 +138,20 @@ redeploy and it will continue the iteration using the new code.
 
 ## Testing
 
-### Deploy
+### Run unit tests for state machine definition
+
+```bash
+docker-compose run test-runner
+```
+
+During development I recommend:
+```bash
+docker-compose run test-runner bash
+# once inside
+npm run test -- --watch
+```
+
+### Deploy on AWS
 
 You have sam-cli (https://github.com/aws/aws-sam-cli) installed and console access to your
 AWS account configured.
@@ -154,7 +167,7 @@ It will print out the ARN of state machine to the console.
 Also, use same function if you've made any modification to the code and want to update it on AWS.
 
 
-### Launch exection
+### Launch exection on AWS
 
 I have a local file under path `/tmp/input.json` with a structure like:
 
