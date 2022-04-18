@@ -1,6 +1,6 @@
 {
   "StateMachines": {
-    "MyStateMachine": {
+    "MySampleStateMachine": {
       "TestCases": {
         "HappyPath": {
           "GetElementCount": "InitIteratorState",
