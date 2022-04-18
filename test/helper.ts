@@ -34,7 +34,7 @@ export class StateMachineHelper {
     stateMachineArn: string,
     fixtureName: string,
     input: unknown,
-    expectedState = 'SUCCEEDED',
+    expectedState: AWS.StepFunctions.Types.ExecutionStatus = 'SUCCEEDED',
     timeout = 2000,
     interval = 200,
 
@@ -53,7 +53,7 @@ export class StateMachineHelper {
 
   private async waitForExecutionToFinish (
     executionArn: string,
-    expectedState = 'SUCCEEDED',
+    expectedState: AWS.StepFunctions.Types.ExecutionStatus = 'SUCCEEDED',
     timeout = 2000,
     interval = 200,
   ): Promise<void> {
@@ -70,12 +70,13 @@ export class ExecutionHistory {
   constructor (public events: AWS.StepFunctions.HistoryEvent[]) {}
 
   getAllLambdaCalls () {
+    console.log(JSON.stringify(this.events, null, 2))
     return this.events
       .filter(event => event.type === 'LambdaFunctionScheduled')
       .map(event => ({
         ...event,
         parsedInput: this.parseLambdaScheduledInput(event),
-        stateName: this.events[event.id - 2]!.stateEnteredEventDetails!.name,
+        stateName: this.lookBackStateName(event),
       }))
   }
 
@@ -89,6 +90,12 @@ export class ExecutionHistory {
     } catch {
       return null
     }
+  }
+
+  private lookBackStateName (event: AWS.StepFunctions.HistoryEvent) {
+    return this.events.slice(0, event.id - 1).reverse().find(
+      event => event.type === 'TaskStateEntered',
+    )!.stateEnteredEventDetails!.name
   }
 }
 

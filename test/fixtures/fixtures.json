@@ -9,11 +9,26 @@
         "EmptyCollection": {
           "GetElementCount": "InitIteratorEmptyState",
           "ProcessElement": "ProcessElementState"
+        },
+        "FailsAtInit": {
+          "GetElementCount": "InitIteratorErrorState"
+        },
+        "ProcessingFailsAndGetsRetried": {
+          "GetElementCount": "InitIteratorState",
+          "ProcessElement": "ProcessElementStateOneFailure"
         }
       }
     }
   },
   "MockedResponses": {
+    "InitIteratorErrorState": {
+      "0": {
+        "Throw": {
+          "Error": "TypeError",
+          "Cause": "undefined has no attribute length"
+        }
+      }
+    },
     "InitIteratorState": {
       "0": {
         "Return": {
@@ -54,6 +69,36 @@
           "index": 3
         }
       }
+    },
+    "ProcessElementStateOneFailure": {
+      "0": {
+        "Throw": {
+          "Error":"Lambda.TimeoutException",
+          "Cause":"Lambda timed out."
+        }
+      },
+      "1": {
+        "Return": {
+          "continue": true,
+          "count": 3,
+          "index": 1
+        }
+      },
+      "2": {
+        "Return": {
+          "continue": true,
+          "count": 3,
+          "index": 2
+        }
+      },
+      "3": {
+        "Return": {
+          "continue": false,
+          "count": 3,
+          "index": 3
+        }
+      }
     }
+
   }
 }

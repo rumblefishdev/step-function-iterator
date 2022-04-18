@@ -67,9 +67,43 @@ describe('state machine definition', () => {
     const executionHistory = await helper.runAndWait(
       stateMachineArn,
       'EmptyCollection',
-      input,
+      { collection: [] },
     )
     const processCalls = executionHistory.getCallsTo('ProcessElement')
     expect(processCalls.length).toBe(0)
   })
+
+  it('fails at intialization', async () => {
+    const executionHistory = await helper.runAndWait(
+      stateMachineArn,
+      'FailsAtInit',
+      null,
+      'FAILED',
+    )
+    const processCalls = executionHistory.getCallsTo('ProcessElement')
+    expect(processCalls.length).toBe(0)
+  })
+
+  it('timeouts at processing element and retries ', async () => {
+    const executionHistory = await helper.runAndWait(
+      stateMachineArn,
+      'ProcessingFailsAndGetsRetried',
+      input,
+      'SUCCEEDED',
+      5000,
+      1000,
+    )
+    const processCalls = executionHistory.getCallsTo('ProcessElement')
+    expect(processCalls.length).toBe(4)
+    expect(processCalls[0].parsedInput).toEqual({
+      ...input,
+      stateName: 'ProcessElement',
+      iterator: { count: 3, continue: true, index: 0 },
+    })
+    expect(processCalls[1].parsedInput).toEqual({
+      ...input,
+      stateName: 'ProcessElement',
+      iterator: { count: 3, continue: true, index: 0 },
+    })
+  }, 10000)
 })
