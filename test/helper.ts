@@ -70,7 +70,6 @@ export class ExecutionHistory {
   constructor (public events: AWS.StepFunctions.HistoryEvent[]) {}
 
   getAllLambdaCalls () {
-    console.log(JSON.stringify(this.events, null, 2))
     return this.events
       .filter(event => event.type === 'LambdaFunctionScheduled')
       .map(event => ({
