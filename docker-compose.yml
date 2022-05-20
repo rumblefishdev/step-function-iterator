@@ -29,7 +29,8 @@ services:
         --debug --host 0.0.0.0
         --docker-network stepFunctionIteratorNetwork
         --container-host $$A
-        --container-host-interface 0.0.0.0;
+        --container-host-interface 0.0.0.0
+        --warm-containers EAGER
       "
 
   test-runner:
