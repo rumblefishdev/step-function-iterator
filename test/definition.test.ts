@@ -8,7 +8,7 @@ const stepFunctions = new AWS.StepFunctions({
   region: 'local',
 })
 const helper = new StateMachineHelper(stepFunctions)
-const dummyArn = 'arn:aws:lambda:::function:some-function'
+const dummyArn = 'arn:aws:lambda:::function:StateFunctionHandler'
 const machineName = 'MySampleStateMachine'
 
 describe('state machine definition', () => {
@@ -31,11 +31,45 @@ describe('state machine definition', () => {
     stateMachineArn = await helper.createOrUpdateStateMachine(definition, machineName)
   })
 
+  it('happy path integration test', async () => {
+    const executionHistory = await helper.runAndWait(
+      stateMachineArn,
+      input,
+      '',
+      'SUCCEEDED',
+      50000,
+    )
+    const initCalls = executionHistory.getCallsTo('GetElementCount')
+    expect(initCalls.length).toBe(1)
+    expect(initCalls[0].parsedInput).toEqual({
+      ...input,
+      stateName: 'GetElementCount',
+    })
+
+    const processCalls = executionHistory.getCallsTo('ProcessElement')
+    expect(processCalls.length).toBe(3)
+    expect(processCalls[0].parsedInput).toEqual({
+      ...input,
+      stateName: 'ProcessElement',
+      iterator: { count: 3, continue: true, index: 0 },
+    })
+    expect(processCalls[1].parsedInput).toEqual({
+      ...input,
+      stateName: 'ProcessElement',
+      iterator: { count: 3, continue: true, index: 1 },
+    })
+    expect(processCalls[2].parsedInput).toEqual({
+      ...input,
+      stateName: 'ProcessElement',
+      iterator: { count: 3, continue: true, index: 2 },
+    })
+  }, 60000)
+
   it('happy path', async () => {
     const executionHistory = await helper.runAndWait(
       stateMachineArn,
-      'HappyPath',
       input,
+      'HappyPath',
     )
     const initCalls = executionHistory.getCallsTo('GetElementCount')
     expect(initCalls.length).toBe(1)
@@ -66,8 +100,8 @@ describe('state machine definition', () => {
   it('empty collection', async () => {
     const executionHistory = await helper.runAndWait(
       stateMachineArn,
-      'EmptyCollection',
       { collection: [] },
+      'EmptyCollection',
     )
     const processCalls = executionHistory.getCallsTo('ProcessElement')
     expect(processCalls.length).toBe(0)
@@ -76,8 +110,8 @@ describe('state machine definition', () => {
   it('fails at intialization', async () => {
     const executionHistory = await helper.runAndWait(
       stateMachineArn,
-      'FailsAtInit',
       null,
+      'FailsAtInit',
       'FAILED',
     )
     const processCalls = executionHistory.getCallsTo('ProcessElement')
@@ -87,8 +121,8 @@ describe('state machine definition', () => {
   it('timeouts at processing element and retries ', async () => {
     const executionHistory = await helper.runAndWait(
       stateMachineArn,
-      'ProcessingFailsAndGetsRetried',
       input,
+      'ProcessingFailsAndGetsRetried',
       'SUCCEEDED',
       5000,
       1000,

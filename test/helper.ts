@@ -32,15 +32,15 @@ export class StateMachineHelper {
 
   async runAndWait (
     stateMachineArn: string,
-    fixtureName: string,
     input: unknown,
+    fixtureName = '',
     expectedState: AWS.StepFunctions.Types.ExecutionStatus = 'SUCCEEDED',
     timeout = 2000,
     interval = 200,
 
   ): Promise<ExecutionHistory> {
     const runResponse = await this.stepFunctions.startExecution({
-      stateMachineArn: `${stateMachineArn}#${fixtureName}`,
+      stateMachineArn: `${stateMachineArn}${fixtureName ? `#${fixtureName}` : ''}`,
       input: JSON.stringify(input),
     }).promise()
     await this.waitForExecutionToFinish(runResponse.executionArn, expectedState, timeout, interval)

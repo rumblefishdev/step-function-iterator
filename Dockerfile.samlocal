@@ -1,0 +1,4 @@
+FROM node:16-buster
+
+RUN apt-get update && apt-get install -y python3-pip docker.io jq && apt-get clean
+RUN pip3 install aws-sam-cli

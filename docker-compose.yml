@@ -4,9 +4,33 @@ services:
     image: amazon/aws-stepfunctions-local
     volumes:
       - ./test/fixtures:/home/StepFunctionsLocal/fixtures:ro
+    links:
+      - aws-sam-local
     environment:
       SFN_MOCK_CONFIG: "/home/StepFunctionsLocal/fixtures/fixtures.json"
       WAIT_TIME_SCALE: 0
+      LAMBDA_ENDPOINT: http://aws-sam-local:3001
+      AWS_ACCESS_KEY_ID: AKIAXTTRUF7NU7KDMIED
+      AWS_SECRET_ACCESS_KEY: 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
+
+  aws-sam-local:
+    build:
+      dockerfile: Dockerfile.samlocal
+      context: .
+    volumes:
+      - .:/$PWD
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+    working_dir: $PWD
+    command: bash -c "
+      A=`docker inspect $$HOSTNAME | jq -r .[0].NetworkSettings.Networks.stepFunctionIteratorNetwork.Gateway`;
+      echo $$A;
+      sam local start-lambda
+        --debug --host 0.0.0.0
+        --docker-network stepFunctionIteratorNetwork
+        --container-host $$A
+        --container-host-interface 0.0.0.0;
+      "
 
   test-runner:
     image: node:16-buster
@@ -17,3 +41,7 @@ services:
     working_dir: /app
     user: node
     command: npm run test
+
+networks:
+  default:
+    name: stepFunctionIteratorNetwork

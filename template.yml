@@ -4,7 +4,7 @@ Resources:
   StateFunctionHandler:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./dist/index.js
+      CodeUri: ./dist.zip
       Handler: index.entrypoint
       Runtime: "nodejs14.x"
       Timeout: 25
