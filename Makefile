@@ -9,11 +9,15 @@ CAPABILITIES=CAPABILITY_IAM CAPABILITY_AUTO_EXPAND
 dist/index.js: src/index.ts
 	npm run build
 
+dist.zip: dist/index.js
+	cd dist && zip ../dist.zip *
+
 make-artifacts-bucket:
 	aws s3 mb s3://$(ARTIFACTS_BUCKET) --region $(REGION)
 
-deploy: dist/index.js
+deploy: dist.zip
 	sam deploy --template-file template.yml --stack-name $(STACK_NAME) --capabilities $(CAPABILITIES)  --region $(REGION) --s3-bucket $(ARTIFACTS_BUCKET)
+
 
 destroy:
 	aws cloudformation delete-stack --stack-name $(STACK_NAME)   --region $(REGION)
